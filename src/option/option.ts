@@ -183,7 +183,7 @@ export interface Option<T extends NonUndefined> {
    * console.log(None.unwrap()); // throws Error
    * ```
    */
-  unwrap(): T | never;
+  unwrap(msg?: string): T | never;
 }
 
 export class OptionExt {
@@ -208,8 +208,6 @@ export class OptionExt {
  * Implementation of Option representing a value (Some).
  */
 export interface SomeOption<T extends NonUndefined> extends Option<T> {
-  unwrap(): T;
-
   map<U extends NonUndefined>(fn: (val: T) => U): SomeOption<U>;
 
   andThen<U extends NonUndefined>(fn: (val: T) => SomeOption<U>): SomeOption<U>;
@@ -220,14 +218,13 @@ export interface SomeOption<T extends NonUndefined> extends Option<T> {
 
   and<U extends NonUndefined>(optb: SomeOption<U>): SomeOption<U>;
   and<U extends NonUndefined>(optb: NoneOption<U>): NoneOption<U>;
+  unwrap(msg?: string): T;
 }
 
 /**
  * Implementation of Option representing the absence of a value (None).
  */
 export interface NoneOption<T extends NonUndefined> extends Option<T> {
-  unwrap(): never;
-
   map<U extends NonUndefined>(_fn: (val: T) => U): NoneOption<U>;
 
   andThen<U extends NonUndefined>(_fn: (val: T) => Option<U>): NoneOption<U>;
@@ -237,6 +234,7 @@ export interface NoneOption<T extends NonUndefined> extends Option<T> {
   or<U extends NonUndefined>(optb: Option<U>): Option<U>;
 
   and<U extends NonUndefined>(_optb: Option<U>): NoneOption<U>;
+  unwrap(msg?: string): never;
 }
 
 /**
@@ -285,7 +283,7 @@ class SomeImpl<T extends NonUndefined> implements SomeOption<T> {
     return this.val;
   }
 
-  unwrap(): T {
+  unwrap(_msg?: string): T {
     return this.val;
   }
 }
@@ -336,8 +334,12 @@ class NoneImpl<T extends NonUndefined> implements NoneOption<T> {
     return def;
   }
 
-  unwrap(): never {
-    throw new ReferenceError('Trying to unwrap None.');
+  unwrap(msg?: string): never {
+    if (msg) {
+      throw new Error(msg);
+    } else {
+      throw new ReferenceError('Trying to unwrap None.');
+    }
   }
 }
 
