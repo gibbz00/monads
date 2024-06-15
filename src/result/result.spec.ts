@@ -2,6 +2,8 @@ import type { Equals, Expect } from '../test_util/test_util.js';
 import { Err, isErr, isOk, Ok, Result, ResultType } from './result';
 
 describe('Result', () => {
+  const errorMsg = 'whoopsie';
+
   describe('Ok', () => {
     const value = 'success';
     const okResult: Result<string, string> = Ok(value);
@@ -31,6 +33,11 @@ describe('Result', () => {
     });
 
     test('unwrapErr should throw', () => {
+      expect(() => okResult.unwrapErr()).toThrow();
+    });
+
+    test('unwrapErr may throw with custom message', () => {
+      expect(() => okResult.unwrapErr(errorMsg)).toThrow(errorMsg);
       expect(() => okResult.unwrapErr()).toThrow();
     });
 
@@ -92,6 +99,11 @@ describe('Result', () => {
     });
 
     test('unwrap should throw', () => {
+      expect(() => errResult.unwrap()).toThrow();
+    });
+
+    test('unwrap may throw with custom message', () => {
+      expect(() => errResult.unwrap(errorMsg)).toThrow(errorMsg);
       expect(() => errResult.unwrap()).toThrow();
     });
 
